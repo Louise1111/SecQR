@@ -1,0 +1,148 @@
+const DUMMY_DATA_HISTORY = [
+  {
+    id: 1,
+    description: "description 1",
+    url: "https://url.com",
+    status: "Safe",
+  },
+  {
+    id: 2,
+    description: "description 2",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 3,
+    description: "description 3",
+    url: "https://url.com",
+    status: "Safe",
+  },
+  {
+    id: 4,
+    description: "description 4",
+    url: "https://url.com",
+    status: "Not That Safe",
+  },
+  {
+    id: 5,
+    description: "description 1",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 6,
+    description: "description 2",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 7,
+    description: "description 3",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 8,
+    description: "description 4",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 9,
+    description: "description 5",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 10,
+    description: "description 6",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 11,
+    description: "description 7",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 12,
+    description: "description 8",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 13,
+    description: "description 9",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 14,
+    description: "description 10",
+    url: "https://urlsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.com",
+    status: "Malicious",
+  },
+  {
+    id: 15,
+    description: "description 11",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 16,
+    description: "description 12",
+    url: "https://url.com",
+    status: "Safe",
+  },
+  {
+    id: 17,
+    description: "description 13",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 18,
+    description: "description 14",
+    url: "https://url.com",
+    status: "Not That Safe",
+  },
+  {
+    id: 19,
+    description: "description 15",
+    url: "https://url.com",
+    status: "Safe",
+  },
+  {
+    id: 20,
+    description: "description 16",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 21,
+    description: "description 17",
+    url: "https://url.com",
+    status: "Safe",
+  },
+  {
+    id: 22,
+    description: "description 18",
+    url: "https://url.com",
+    status: "Not That Safe",
+  },
+  {
+    id: 23,
+    description: "description 19",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+  {
+    id: 24,
+    description: "description 20",
+    url: "https://url.com",
+    status: "Malicious",
+  },
+];
+
+export { DUMMY_DATA_HISTORY };

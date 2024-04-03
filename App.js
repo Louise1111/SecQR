@@ -1,20 +1,43 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import HomeScreen from "./pages/homeScreen";
+import ScanScreen from "./pages/scanScreen";
+import GenerateScreen from "./pages/generateScreen";
+import AboutScreen from "./pages/aboutScreen";
+import HelpScreen from "./pages/helpScreen";
+import HistoryScreen from "./pages/historyScreen";
+import LoginScreen from "./pages/loginScreen";
+import SignupScreen from "./pages/signupScreen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import IndexScreen from "./pages/indexScreen";
+import { StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import HistoryDetailScreen from "./pages/historyDetailScreen";
+import HelpDetailScreen from "./pages/helpDetailScreen";
+const Stack = createStackNavigator();
 
-export default function App() {
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <StatusBar barStyle="dark-content" backgroundColor="white" translucent />
+      <SafeAreaView style={{ flex: 1 }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Scan" component={ScanScreen} />
+          <Stack.Screen name="GenerateQR" component={GenerateScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
+          <Stack.Screen name="History" component={HistoryScreen} />
+          <Stack.Screen name="Help" component={HelpScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="Index" component={IndexScreen} />
+          <Stack.Screen name="HistoryDetail" component={HistoryDetailScreen} />
+          <Stack.Screen name="HelpDetail" component={HelpDetailScreen} />
+        </Stack.Navigator>
+      </SafeAreaView>
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
