@@ -15,6 +15,7 @@ import { StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HistoryDetailScreen from "./pages/historyDetailScreen";
 import HelpDetailScreen from "./pages/helpDetailScreen";
+import CameraScreen from "./pages/cameraScreen";
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -34,6 +35,7 @@ const App = () => {
           <Stack.Screen name="Index" component={IndexScreen} />
           <Stack.Screen name="HistoryDetail" component={HistoryDetailScreen} />
           <Stack.Screen name="HelpDetail" component={HelpDetailScreen} />
+          <Stack.Screen name="CameraScreen" component={CameraScreen} />
         </Stack.Navigator>
       </SafeAreaView>
     </NavigationContainer>

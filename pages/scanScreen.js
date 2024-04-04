@@ -1,57 +1,82 @@
-import React, { useState } from "react";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Animated,
-  Image,
-  TouchableWithoutFeedback,
-} from "react-native";
-import Header from "../components/header";
+import React from "react";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 
 export default function ScanScreen() {
   const navigation = useNavigation();
 
+  // Function to navigate to the Home screen
   const goToHomeScreen = () => {
     navigation.navigate("Home");
   };
+
+  // Function to navigate to the CameraScreen
+  const goToCameraScreen = () => {
+    navigation.navigate("CameraScreen");
+  };
+
+  // Function to navigate to the History screen
   const goToHistoryScreen = () => {
     navigation.navigate("History");
   };
+
+  // Function to open the device's image picker to select an image
+  const openImagePicker = async () => {
+    // Request permission to access the device's camera roll
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      // Alert if permission is denied
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    // Launch image picker
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    // If image selection is not cancelled
+    if (!result.cancelled) {
+      console.log("Selected image:", result.uri);
+      // You can perform any further operations with the selected image here
+    }
+  };
+
+  // Render UI
   return (
     <View style={styles.container}>
-      <View style={styles.SideHeader}>
+      <View style={styles.sideHeader}>
         <TouchableOpacity onPress={goToHomeScreen} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}
           />
         </TouchableOpacity>
-        <Text style={styles.HeaderText}>Scan QR Code</Text>
+        <Text style={styles.headerText}>Scan QR Code</Text>
       </View>
-      <View style={styles.spaceHeader}>
-        <Header />
-      </View>
-
-      <TouchableOpacity style={styles.button}>
+      {/* Button to navigate to CameraScreen */}
+      <TouchableOpacity style={styles.button} onPress={goToCameraScreen}>
         <Image
           source={require("../assets/logo/camera.png")}
           style={styles.logo}
         />
         <Text style={styles.buttonText}>Capture QR</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      {/* Button to open image picker */}
+      <TouchableOpacity style={styles.button} onPress={openImagePicker}>
         <Image
           source={require("../assets/logo/galleryIcon.png")}
           style={styles.logo}
         />
         <Text style={styles.buttonText}>Import QR</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={goToHistoryScreen} style={styles.button}>
+      {/* Button to navigate to History screen */}
+      <TouchableOpacity style={styles.button} onPress={goToHistoryScreen}>
         <Image
           source={require("../assets/logo/history.png")}
           style={styles.logo}
@@ -62,6 +87,7 @@ export default function ScanScreen() {
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -69,7 +95,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  SideHeader: {
+  sideHeader: {
     position: "absolute",
     top: 0,
     flexDirection: "row",
@@ -101,10 +127,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
   },
-  spaceHeader: {
-    marginTop: -150,
-    marginBottom: 60,
-  },
   logoContainer: {
     position: "absolute",
     top: 10,
@@ -115,7 +137,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  HeaderText: {
+  headerText: {
     color: "white",
     fontSize: 27,
     fontWeight: "bold",
