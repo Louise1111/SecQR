@@ -1,11 +1,8 @@
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
-import GenerateItem from "./generateItem";
-import { DUMMY_DATA_HELP } from "../data/helpList";
-import { DUMMY_DATA_HISTORY } from "../data/dummyData";
 import { View, StyleSheet } from "react-native";
 import HelpItem from "./helpItem";
 
-const HelpList = () => {
+const HelpList = ({ data }) => {
   const renderItem = ({ item }) => {
     return (
       <HelpItem
@@ -19,7 +16,7 @@ const HelpList = () => {
   return (
     <View>
       <FlatList
-        data={DUMMY_DATA_HELP}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         refreshControl={

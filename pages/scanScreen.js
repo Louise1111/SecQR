@@ -1,53 +1,155 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-
-export default function ScanScreen() {
+import Notification from "../components/notification";
+import * as FileSystem from "expo-file-system";
+import { API_BASE_URL } from "../assets/api";
+import Header from "../components/header";
+export default function ScanScreen({ route }) {
   const navigation = useNavigation();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false); // Assuming modalVisible is part of your component's state
+  const [scannedResult, setScannedResult] = useState(null); // Assuming scannedResult is part of your component's state
+  useEffect(() => {
+    loadImages();
+  }, []);
 
-  // Function to navigate to the Home screen
+  const loadImages = async () => {
+    await ensureDirExists();
+    const files = await FileSystem.readDirectoryAsync(imgDir);
+    if (files.length > 0) {
+      setImage(files.map((f) => imgDir + f));
+    }
+  };
+
+  useEffect(() => {
+    if (route.params?.scannedResult) {
+      setScannedResult(route.params.scannedResult);
+      toggleModal();
+    }
+  }, [route.params]);
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
   const goToHomeScreen = () => {
     navigation.navigate("Home");
   };
 
-  // Function to navigate to the CameraScreen
   const goToCameraScreen = () => {
     navigation.navigate("CameraScreen");
   };
 
-  // Function to navigate to the History screen
   const goToHistoryScreen = () => {
     navigation.navigate("History");
   };
 
-  // Function to open the device's image picker to select an image
+  const imgDir = FileSystem.documentDirectory + "scan_images/";
+
+  const ensureDirExists = async () => {
+    try {
+      const dirInfo = await FileSystem.getInfoAsync(imgDir);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(imgDir, { intermediates: true });
+      }
+    } catch (error) {
+      console.error("Error ensuring directory exists:", error);
+      // Handle the error gracefully, such as showing a message to the user
+    }
+  };
   const openImagePicker = async () => {
-    // Request permission to access the device's camera roll
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      // Alert if permission is denied
-      alert("Permission to access camera roll is required!");
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 4],
+        quality: 0.8,
+      });
+
+      if (result && !result.cancelled) {
+        const uri = result.assets[0].uri; // Access URI based on option
+        console.log(uri);
+        saveImage(uri);
+      } else if (result && result.cancelled) {
+        // Handle the case where image selection is cancelled
+        return;
+      } else {
+        // Handle the case where the result is null (e.g., user backs out)
+        return;
+      }
+    } catch (error) {
+      // Handle any other errors that may occur during image selection
       return;
     }
+  };
+  const saveImage = async (uri) => {
+    try {
+      await ensureDirExists(); // Ensure the directory exists
 
-    // Launch image picker
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+      const filename = new Date().getTime() + ".jpg";
+      const destPath = imgDir + filename;
 
-    // If image selection is not cancelled
-    if (!result.cancelled) {
-      console.log("Selected image:", result.uri);
-      // You can perform any further operations with the selected image here
+      // Copy the image asynchronously
+      await FileSystem.copyAsync({ from: uri, to: destPath });
+
+      // Update the state with the new image path
+      setImage([...image, destPath]);
+
+      // Upload the image
+      scanImage(destPath);
+    } catch (error) {
+      console.error("Error saving image:", error);
+      // Handle the error gracefully, such as showing a message to the user
     }
   };
 
-  // Render UI
+  const scanImage = async (uri) => {
+    setLoading(true);
+    try {
+      const response = await FileSystem.uploadAsync(
+        `${API_BASE_URL}/api/scan/`,
+        uri,
+        {
+          httpMethod: "POST",
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: "image",
+        }
+      );
+
+      setLoading(false);
+
+      console.log("Response:", response);
+
+      if (response.status === 201) {
+        // Extracting the response data from the response body
+        const responseData = JSON.parse(response.body);
+        console.log("Response data:", responseData);
+
+        // Navigate to the Scan screen and pass the scanned result data as a parameter
+        navigation.navigate("Scan", { scannedResult: responseData });
+
+        console.log("Image scanned successfully!"); // Log success message
+      } else {
+        console.error("Error:", response.status);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setLoading(false); // Ensure loading state is reset even if an error occurs
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.sideHeader}>
@@ -59,7 +161,8 @@ export default function ScanScreen() {
         </TouchableOpacity>
         <Text style={styles.headerText}>Scan QR Code</Text>
       </View>
-      {/* Button to navigate to CameraScreen */}
+
+      <Header />
       <TouchableOpacity style={styles.button} onPress={goToCameraScreen}>
         <Image
           source={require("../assets/logo/camera.png")}
@@ -67,15 +170,20 @@ export default function ScanScreen() {
         />
         <Text style={styles.buttonText}>Capture QR</Text>
       </TouchableOpacity>
-      {/* Button to open image picker */}
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+        </View>
+      )}
+
       <TouchableOpacity style={styles.button} onPress={openImagePicker}>
         <Image
           source={require("../assets/logo/galleryIcon.png")}
           style={styles.logo}
         />
-        <Text style={styles.buttonText}>Import QR</Text>
+        <Text style={styles.buttonText}>Upload Image</Text>
       </TouchableOpacity>
-      {/* Button to navigate to History screen */}
+
       <TouchableOpacity style={styles.button} onPress={goToHistoryScreen}>
         <Image
           source={require("../assets/logo/history.png")}
@@ -83,11 +191,16 @@ export default function ScanScreen() {
         />
         <Text style={styles.buttonText}>History</Text>
       </TouchableOpacity>
+
+      <Notification
+        visible={modalVisible}
+        onClose={toggleModal}
+        scannedResult={scannedResult}
+      />
     </View>
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -137,10 +250,26 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
+  image1: {
+    width: 200, // Adjust the width and height as needed
+    height: 200,
+    marginBottom: 20, // Add any additional styling you want
+  },
   headerText: {
     color: "white",
     fontSize: 27,
     fontWeight: "bold",
     marginLeft: 60,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -30, // Half of the ActivityIndicator size
+    marginLeft: -30, // Half of the ActivityIndicator size
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
   },
 });

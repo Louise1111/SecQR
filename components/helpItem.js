@@ -1,20 +1,21 @@
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { Text, StyleSheet } from "react-native";
+import React from "react";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+
 const HelpItem = ({ id, title, description }) => {
   const navigation = useNavigation();
+
+  const handlePress = () => {
+    navigation.navigate("HelpDetail", {
+      id,
+      title,
+      description,
+    });
+  };
+
   return (
-    <TouchableOpacity
-      style={styles.container1}
-      onPress={() =>
-        navigation.navigate("HelpDetail", {
-          id,
-          title,
-          description,
-        })
-      }
-    >
-      <Text style={styles.textContainer1}> {title}</Text>
+    <TouchableOpacity style={styles.container1} onPress={handlePress}>
+      <Text style={styles.textContainer1}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -27,9 +28,8 @@ const styles = StyleSheet.create({
     marginLeft: "5%",
     borderColor: "#0B8F87",
     marginTop: 10,
-    alignContent: "center",
+    alignItems: "center",
     justifyContent: "center",
-
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   textContainer1: {
     fontSize: 20,
     fontWeight: "bold",
-    marginLeft: 25,
   },
 });
+
 export default HelpItem;

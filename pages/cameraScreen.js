@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Button, Image } from "react-native";
 import { Camera } from "expo-camera";
+
 import { TouchableOpacity } from "react-native-gesture-handler";
+
+import { API_BASE_URL } from "../assets/api";
 
 export default function CameraScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState(null);
+  const [link, setLink] = useState("");
   const [type, setType] = useState(Camera.Constants.Type.back);
 
   useEffect(() => {
@@ -15,23 +19,39 @@ export default function CameraScreen({ navigation }) {
       setHasPermission(status === "granted");
     })();
   }, []);
-
-  const handleBarCodeScanned = ({ data }) => {
+  const handleBarCodeScanned = async ({ data }) => {
     setScanned(true);
     setScannedData(data);
-    const url = extractURL(data);
-    if (url) {
-      console.log("URL detected:", url);
+    const link = extractURL(data);
+    if (link) {
+      try {
+        const formData = new FormData();
+        formData.append("link", link);
+
+        const response = await fetch(`${API_BASE_URL}/api/scan/`, {
+          method: "POST",
+          headers: {
+            // Do not set Content-Type header for FormData
+          },
+          body: formData,
+        });
+
+        const responseData = await response.json();
+        console.log(responseData);
+
+        // Navigate to the Scan screen and pass the scanned result data as a parameter
+        navigation.navigate("Scan", { scannedResult: responseData });
+      } catch (error) {
+        console.error("Error:", error);
+      }
     } else {
       console.log("No URL detected");
     }
-    // Navigate back to ScanScreen
-    navigation.goBack();
   };
-
   const goToScanScreen = () => {
     navigation.navigate("Scan");
   };
+
   const extractURL = (data) => {
     const regex =
       /(\b(?:https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;

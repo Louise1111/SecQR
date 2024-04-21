@@ -1,30 +1,40 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
-import { DUMMY_DATA_HISTORY } from "../data/dummyData";
 import GenerateItem from "./generateItem";
 
-const GenerateList = () => {
+const GenerateList = ({ data }) => {
   const renderItem = ({ item }) => {
     return (
       <GenerateItem
         id={item.id}
         description={item.description}
-        url={item.url}
-        status={item.status}
+        url={item.link}
+        status={item.url_status}
+        generationStatus={item.generation_status}
+        qr_code={item.qr_code}
       />
     );
   };
 
+  if (!data || data.length === 0) {
+    // If data is empty, display a message
+    return (
+      <View style={styles.container1}>
+        <Text style={styles.textContainer1}>No items found</Text>
+      </View>
+    );
+  }
+
   return (
     <View>
       <FlatList
-        data={DUMMY_DATA_HISTORY}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         refreshControl={
           <RefreshControl
-            refreshing={false}
+            refreshing={false} // You can set this to true to show a loading indicator when refreshing
             onRefresh={() => console.log("Refreshing...")}
           />
         }
@@ -35,15 +45,15 @@ const GenerateList = () => {
 
 const styles = StyleSheet.create({
   container1: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    borderTopWidth: 3,
-    borderTopColor: "#CCCCCC",
-    borderBottomWidth: 1,
-    borderBottomColor: "#0B8F87",
+    paddingRight: 20,
   },
   textContainer1: {
     fontSize: 16,
-    marginLeft: 25,
   },
 });
+
 export default GenerateList;

@@ -9,7 +9,8 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
+import axios from "axios";
+import { API_BASE_URL } from "../assets/api";
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,8 +26,24 @@ export default function LoginScreen() {
       Alert.alert("Error", "password cannot be empty");
       return;
     }
+    loginAccount();
   };
-
+  const loginAccount = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/login/`, {
+        username,
+        password,
+      });
+      Alert.alert("Success", "Successfully Logged In");
+      navigation.navigate("Home");
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Failed to login. Please check your credentials and try again."
+      );
+      console.error("Login error:", error);
+    }
+  };
   const goToSignupScreen = () => {
     navigation.navigate("Signup");
   };

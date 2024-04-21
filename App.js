@@ -16,6 +16,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import HistoryDetailScreen from "./pages/historyDetailScreen";
 import HelpDetailScreen from "./pages/helpDetailScreen";
 import CameraScreen from "./pages/cameraScreen";
+import GenerateResultScreen from "./pages/generateResultScreen";
+import { Platform } from "react-native";
+import HistoryDetailScan from "./pages/historyDetailScan";
+import Notification from "./components/notification";
+const LOCALHOST =
+  Platform.OS === "ios" ? "http://127.0.0.1:8000" : "http://10.0.2.2:8000";
+export const API_BASE_URL = LOCALHOST + "/api/v1/";
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -36,6 +43,16 @@ const App = () => {
           <Stack.Screen name="HistoryDetail" component={HistoryDetailScreen} />
           <Stack.Screen name="HelpDetail" component={HelpDetailScreen} />
           <Stack.Screen name="CameraScreen" component={CameraScreen} />
+          <Stack.Screen
+            name="GenerateResult"
+            component={GenerateResultScreen}
+          />
+          <Stack.Screen
+            name="HistoryDetailScan"
+            component={HistoryDetailScan}
+          />
+
+          <Stack.Screen name="Notification" component={Notification} />
         </Stack.Navigator>
       </SafeAreaView>
     </NavigationContainer>

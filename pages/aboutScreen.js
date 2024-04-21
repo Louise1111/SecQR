@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B8F87",
     zIndex: 1,
   },
-
   logoContainer: {
     position: "absolute",
     top: 10,
@@ -76,13 +75,13 @@ const styles = StyleSheet.create({
   },
   about: {
     flex: 1,
-    justifyContent: "top",
+    justifyContent: "center",
     alignItems: "center",
     borderColor: "#0B8F87",
     borderWidth: 2,
     width: "80%",
     marginBottom: 20,
     marginTop: 100,
-    padding: 20,
+    padding: 10,
   },
 });

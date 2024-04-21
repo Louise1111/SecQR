@@ -9,8 +9,8 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
-export default function ScanScreen() {
+import { API_BASE_URL } from "../assets/api";
+export default function GenerateScreen() {
   const navigation = useNavigation();
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
@@ -19,22 +19,37 @@ export default function ScanScreen() {
     navigation.navigate("Home");
   };
 
-  const generateQR = () => {
-    if (description.length < 1) {
-      Alert.alert("Error", "Description cannot be empty");
-      return;
-    }
+  const generateQR = async () => {
+    try {
+      if (description.length < 1) {
+        Alert.alert("Error", "Description cannot be empty");
+        return;
+      }
 
-    if (!isValidURL(link)) {
-      Alert.alert("Error", "Please enter a valid URL.");
-      return;
-    }
+      if (!isValidURL(link)) {
+        Alert.alert("Error", "Please enter a valid URL.");
+        return;
+      }
 
-    // Generate QR code logic here
+      const data = { description, link };
+      const response = await fetch(`${API_BASE_URL}/api/generate/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const res = await response.json();
+      console.log(res);
+      generatedData = res;
+      navigation.navigate("GenerateResult", { generatedData });
+    } catch (error) {
+      console.error("Error:", error);
+      Alert.alert("Error", "Failed to generate QR code. Please try again.");
+    }
   };
 
   const isValidURL = (url) => {
-    // Regular expression to validate URL format
     const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
     return urlPattern.test(url);
   };
@@ -68,7 +83,11 @@ export default function ScanScreen() {
         />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={generateQR}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={generateQR}
+        title="generate"
+      >
         <Text style={styles.buttonText}>Generate QR</Text>
       </TouchableOpacity>
     </View>

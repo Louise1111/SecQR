@@ -1,14 +1,14 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet, View, Image } from "react-native";
+import { TouchableOpacity, Text, StyleSheet, Image, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const GenerateItem = ({
+const ScanItem = ({
   id,
-  description,
   url,
   status,
-  generationStatus,
-  qr_code,
+  malware_detected,
+  malware_detected_tool,
+  verify_qr_legitimacy,
 }) => {
   const navigation = useNavigation();
 
@@ -29,19 +29,18 @@ const GenerateItem = ({
     <TouchableOpacity
       style={styles.container1}
       onPress={() =>
-        navigation.navigate("HistoryDetail", {
+        navigation.navigate("HistoryDetailScan", {
           historyId: id,
-          description,
           url,
           status,
-          generationStatus,
-          qr_code,
+          malware_detected,
+          malware_detected_tool,
+          verify_qr_legitimacy,
         })
       }
     >
       {/* Display the image based on imageSource */}
       <Image source={imageSource} style={styles.logo} />
-
       <View style={styles.urlContent}>
         <Text style={styles.textContainer1}> {url}</Text>
       </View>
@@ -72,4 +71,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GenerateItem;
+export default ScanItem;

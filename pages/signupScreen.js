@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-
+import axios from "axios";
+import { API_BASE_URL } from "../assets/api";
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
@@ -18,6 +19,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigation = useNavigation();
 
   const signup = () => {
     if (firstname.length < 1) {
@@ -29,15 +31,15 @@ export default function SignupScreen() {
       return;
     }
     if (email.length < 1) {
-      Alert.alert("Error", "email cannot be empty");
+      Alert.alert("Error", "Email cannot be empty");
       return;
     }
     if (username.length < 1) {
-      Alert.alert("Error", "username cannot be empty");
+      Alert.alert("Error", "Username cannot be empty");
       return;
     }
     if (password.length < 1) {
-      Alert.alert("Error", "password cannot be empty");
+      Alert.alert("Error", "Password cannot be empty");
       return;
     }
     if (password !== confirmPassword) {
@@ -46,10 +48,26 @@ export default function SignupScreen() {
       setConfirmPassword("");
       return;
     }
-    // Proceed with signup logic
+    signupButton();
   };
 
-  const navigation = useNavigation();
+  const signupButton = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/register/`, {
+        username,
+        firstname,
+        lastname,
+        email,
+        password,
+      });
+      Alert.alert("Success", "Account created successfully");
+      navigation.navigate("Login");
+    } catch (error) {
+      Alert.alert("Error", "Failed to create account. Please try again later.");
+      console.error("Signup error:", error);
+    }
+  };
+
   const goToLoginScreen = () => {
     navigation.navigate("Login");
   };
@@ -71,7 +89,6 @@ export default function SignupScreen() {
           onChangeText={setFirstname}
         />
       </View>
-
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -92,7 +109,6 @@ export default function SignupScreen() {
           onChangeText={setEmail}
         />
       </View>
-
       <View style={styles.inputContainer}>
         <Image
           source={require("../assets/logo/user.png")}
@@ -105,7 +121,6 @@ export default function SignupScreen() {
           onChangeText={setUsername}
         />
       </View>
-
       <View style={styles.inputContainer}>
         <Image
           source={require("../assets/logo/password.png")}
@@ -132,7 +147,6 @@ export default function SignupScreen() {
           secureTextEntry
         />
       </View>
-
       <TouchableOpacity style={styles.button} onPress={signup}>
         <Text style={styles.buttonText}>SIGN UP</Text>
       </TouchableOpacity>
@@ -218,7 +232,6 @@ const styles = StyleSheet.create({
     marginRight: -15,
     marginTop: -10,
   },
-
   text: {
     fontSize: 17,
   },
