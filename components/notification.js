@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,11 @@ import {
 const Notification = ({ visible, onClose, scannedResult }) => {
   const [expanded, setExpanded] = useState(false);
   const [seeLessVisible, setSeeLessVisible] = useState(false);
-
+  useEffect(() => {
+    if (!visible) {
+      setExpanded(false);
+    }
+  }, [visible]);
   const handleSeeMore = () => {
     setExpanded(true);
     setSeeLessVisible(true);
@@ -24,7 +28,6 @@ const Notification = ({ visible, onClose, scannedResult }) => {
   };
 
   const handleClose = () => {
-    // Reset the scannedResult state to null
     onClose();
   };
 
@@ -112,7 +115,6 @@ const Notification = ({ visible, onClose, scannedResult }) => {
 
           {expanded && (
             <View style={styles.additionalContent}>
-              {/* Add your additional content here */}
               <View style={styles.addContentRow}>
                 <Text
                   style={{ color: "#FF0000", fontSize: 16, fontWeight: "bold" }}
@@ -120,7 +122,9 @@ const Notification = ({ visible, onClose, scannedResult }) => {
                   Threat Detected:
                 </Text>
                 <View style={styles.addContentRow2}>
-                  <Text style={{ color: "#FF0000" }}>
+                  <Text
+                    style={{ textTransform: "capitalize", color: "#FF0000" }}
+                  >
                     {scannedResult.malware_detected.length > 3
                       ? scannedResult.malware_detected.replace(/[\[\]']+/g, "")
                       : "0 Malicious Found"}

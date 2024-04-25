@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,11 +11,22 @@ import {
 import Header from "../components/header";
 import { useNavigation } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import { AuthContext } from "../components/authentication/AuthContext";
 export default function HomeScreen() {
   const [isOpen, setIsOpen] = useState(false);
   const [translateX] = useState(new Animated.Value(-300)); // Start position off-screen
+  const { logout } = useContext(AuthContext);
+  const { userToken } = useContext(AuthContext);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (isOpen) {
+        closeDrawer();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, isOpen]);
   const toggleDrawer = () => {
     if (isOpen) {
       closeDrawer();
@@ -47,33 +58,30 @@ export default function HomeScreen() {
       closeDrawer();
     }
   };
-
   const navigation = useNavigation();
-  const goToLoginScreen = () => {
-    navigation.navigate("Login");
-  };
+
   const goToScanScreen = () => {
-    navigation.navigate("Scan");
+    navigation.navigate("Scan", { token: userToken });
   };
 
   const goToGenerateQRScreen = () => {
-    navigation.navigate("GenerateQR");
+    navigation.navigate("GenerateQR", { token: userToken });
   };
 
   const goToHistoryScreen = () => {
-    navigation.navigate("History");
+    navigation.navigate("History", { token: userToken });
   };
 
   const goToHelpScreen = () => {
-    navigation.navigate("Help");
+    navigation.navigate("Help", { token: userToken });
   };
 
   const goToAboutScreen = () => {
-    navigation.navigate("About");
+    navigation.navigate("About", { token: userToken });
   };
 
-  const goToIndexScreen = () => {
-    navigation.navigate("Index");
+  const goToProfile = () => {
+    navigation.navigate("Profile", { token: userToken });
   };
 
   return (
@@ -90,16 +98,21 @@ export default function HomeScreen() {
       </TouchableOpacity>
       <Animated.View
         style={[styles.drawer, { transform: [{ translateX }] }]}
-        pointerEvents={isOpen ? "auto" : "none"} // Adjust pointer events based on drawer state
+        pointerEvents={isOpen ? "auto" : "none"}
       >
-        <TouchableOpacity onPress={goToLoginScreen} style={styles.drawerItem}>
+        <TouchableOpacity style={styles.drawerItem} onPress={goToProfile}>
           <Image
             source={require("../assets/logo/user.png")}
             style={styles.logoDrawer}
           />
           <Text style={styles.drawerItemText}>PROFILE</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.drawerItem2} onPress={goToIndexScreen}>
+        <TouchableOpacity
+          style={styles.drawerItem2}
+          onPress={() => {
+            logout();
+          }}
+        >
           <Image
             source={require("../assets/logo/signout.png")}
             style={styles.logoDrawer2}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,16 +7,28 @@ import {
   Image,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { API_BASE_URL } from "../assets/api";
 export default function GenerateScreen() {
   const navigation = useNavigation();
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
+  const route = useRoute();
+  const { token } = route.params;
+  const [loading, setLoading] = useState(false);
 
-  const goToHomeScreen = () => {
-    navigation.navigate("Home");
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      setLink("");
+      setDescription("");
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+  const goBack = () => {
+    navigation.goBack();
   };
 
   const generateQR = async () => {
@@ -31,21 +43,32 @@ export default function GenerateScreen() {
         return;
       }
 
-      const data = { description, link };
+      setLoading(true); // Set loading to true before starting the fetch request
+
+      const formData = new FormData();
+      formData.append("description", description);
+      formData.append("link", link);
+
       const response = await fetch(`${API_BASE_URL}/api/generate/`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
+        body: formData,
       });
+
       const res = await response.json();
       console.log(res);
       generatedData = res;
+
+      // Navigate to the GenerateResult screen after generating the QR code
       navigation.navigate("GenerateResult", { generatedData });
     } catch (error) {
       console.error("Error:", error);
       Alert.alert("Error", "Failed to generate QR code. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +80,7 @@ export default function GenerateScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.SideHeader}>
-        <TouchableOpacity onPress={goToHomeScreen} style={styles.logoContainer}>
+        <TouchableOpacity onPress={goBack} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}
@@ -65,6 +88,13 @@ export default function GenerateScreen() {
         </TouchableOpacity>
         <Text style={styles.HeaderText}>Generate QR</Text>
       </View>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+
+          <Text style={styles.loadingText}>Generating...</Text>
+        </View>
+      )}
       <View style={styles.inputContainerDescription}>
         <TextInput
           style={styles.input}
@@ -117,7 +147,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   inputContainerDescription: {
-    marginTop: 40, // Increased marginTop to make it bigger
+    marginTop: 40,
     alignItems: "center",
   },
   input: {
@@ -168,5 +198,19 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 26,
     fontWeight: "bold",
+  },
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
   },
 });

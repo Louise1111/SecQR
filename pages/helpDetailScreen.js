@@ -7,8 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function HelpDetailScreen() {
   const navigation = useNavigation();
 
-  const goToHelpScreen = () => {
-    navigation.navigate("Help");
+  const goBack = () => {
+    navigation.goBack();
   };
 
   const route = useRoute();
@@ -16,7 +16,7 @@ export default function HelpDetailScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.sideHeader}>
-        <TouchableOpacity onPress={goToHelpScreen} style={styles.logoContainer}>
+        <TouchableOpacity onPress={goBack} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}

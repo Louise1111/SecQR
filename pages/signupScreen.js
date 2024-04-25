@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,25 +8,26 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
+
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { API_BASE_URL } from "../assets/api";
+
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
+  const [first_name, setFirstname] = useState("");
+  const [last_name, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigation = useNavigation();
 
   const signup = () => {
-    if (firstname.length < 1) {
+    if (first_name.length < 1) {
       Alert.alert("Error", "First Name cannot be empty");
       return;
     }
-    if (lastname.length < 1) {
+    if (last_name.length < 1) {
       Alert.alert("Error", "Last name cannot be empty");
       return;
     }
@@ -55,26 +56,64 @@ export default function SignupScreen() {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/register/`, {
         username,
-        firstname,
-        lastname,
+        first_name,
+        last_name,
         email,
         password,
       });
-      Alert.alert("Success", "Account created successfully");
-      navigation.navigate("Login");
+
+      const { id, ...responseData } = response.data;
+
+      if (response.status === 201) {
+        Alert.alert("Success", "Account created successfully");
+        navigation.navigate("Login");
+      } else {
+        Alert.alert(
+          "Error",
+          "Unexpected response from server. Please try again later."
+        );
+      }
     } catch (error) {
-      Alert.alert("Error", "Failed to create account. Please try again later.");
-      console.error("Signup error:", error);
+      if (error.response) {
+        const errorMessage =
+          error.response.data.detail || "Failed to create account.";
+        Alert.alert(
+          "Error",
+          errorMessage + "\n\n" + JSON.stringify(error.response.data)
+        );
+      } else if (error.request) {
+        Alert.alert(
+          "Error",
+          "Network error. Please check your internet connection and try again."
+        );
+        console.error("Network error:", error.request);
+      } else {
+        Alert.alert(
+          "Error",
+          "An unexpected error occurred. Please try again later."
+        );
+      }
     }
   };
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      setFirstname("");
+      setLastname("");
+      setEmail("");
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   const goToLoginScreen = () => {
     navigation.navigate("Login");
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
       <Image
         source={require("../assets/logo/logo.png")}
         style={styles.SecQR_logo}
@@ -85,7 +124,7 @@ export default function SignupScreen() {
         <TextInput
           style={styles.input}
           placeholder="First Name"
-          value={firstname}
+          value={first_name}
           onChangeText={setFirstname}
         />
       </View>
@@ -93,7 +132,7 @@ export default function SignupScreen() {
         <TextInput
           style={styles.input}
           placeholder="Last Name"
-          value={lastname}
+          value={last_name}
           onChangeText={setLastname}
         />
       </View>

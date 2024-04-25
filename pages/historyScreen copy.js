@@ -7,14 +7,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function HistoryScreen() {
   const navigation = useNavigation();
 
-  const goToHomeScreen = () => {
-    navigation.navigate("Home");
+  const goBack = () => {
+    navigation.pop();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.sideHeader}>
-        <TouchableOpacity onPress={goToHomeScreen} style={styles.logoContainer}>
+        <TouchableOpacity onPress={goBack} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}

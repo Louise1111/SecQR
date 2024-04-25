@@ -36,7 +36,7 @@ export default function GenerateResultScreen() {
       </View>
       <View>
         <Text style={{ fontSize: 25 }}>
-          GENERATION{" "}
+          GENERATION
           <Text
             style={{
               color:
@@ -45,7 +45,6 @@ export default function GenerateResultScreen() {
           >
             {generatedData.generation_status}
           </Text>
-          {" !"}
         </Text>
       </View>
 

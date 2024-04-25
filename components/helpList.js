@@ -1,8 +1,8 @@
-import { FlatList, RefreshControl } from "react-native-gesture-handler";
-import { View, StyleSheet } from "react-native";
+import React from "react";
+import { FlatList, RefreshControl, View, StyleSheet } from "react-native";
 import HelpItem from "./helpItem";
 
-const HelpList = ({ data }) => {
+const HelpList = ({ data, onRefresh }) => {
   const renderItem = ({ item }) => {
     return (
       <HelpItem
@@ -14,15 +14,15 @@ const HelpList = ({ data }) => {
   };
 
   return (
-    <View>
+    <View style={styles.container}>
       <FlatList
         data={data}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()} // Convert id to string for key extraction
         renderItem={renderItem}
         refreshControl={
           <RefreshControl
-            refreshing={false}
-            onRefresh={() => console.log("Refreshing...")}
+            refreshing={false} // Set refreshing to true when refreshing
+            onRefresh={onRefresh} // Pass the onRefresh function received as a prop
           />
         }
       />
@@ -31,9 +31,9 @@ const HelpList = ({ data }) => {
 };
 
 const styles = StyleSheet.create({
-  textContainer1: {
-    fontSize: 16,
-    marginLeft: 25,
+  container: {
+    flex: 1,
   },
 });
+
 export default HelpList;

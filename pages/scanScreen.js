@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,24 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { AuthContext } from "../components/authentication/AuthContext";
+
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Notification from "../components/notification";
 import * as FileSystem from "expo-file-system";
 import { API_BASE_URL } from "../assets/api";
 import Header from "../components/header";
+
 export default function ScanScreen({ route }) {
   const navigation = useNavigation();
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false); // Assuming modalVisible is part of your component's state
-  const [scannedResult, setScannedResult] = useState(null); // Assuming scannedResult is part of your component's state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [scannedResult, setScannedResult] = useState(null);
+  const { userToken } = useContext(AuthContext);
+
+  const { token } = route.params;
   useEffect(() => {
     loadImages();
   }, []);
@@ -44,16 +48,15 @@ export default function ScanScreen({ route }) {
     setModalVisible(!modalVisible);
   };
 
-  const goToHomeScreen = () => {
-    navigation.navigate("Home");
+  const goBack = () => {
+    navigation.pop();
   };
-
   const goToCameraScreen = () => {
-    navigation.navigate("CameraScreen");
+    navigation.navigate("CameraScreen", { token: userToken });
   };
 
   const goToHistoryScreen = () => {
-    navigation.navigate("History");
+    navigation.navigate("History", { token: userToken });
   };
 
   const imgDir = FileSystem.documentDirectory + "scan_images/";
@@ -114,8 +117,8 @@ export default function ScanScreen({ route }) {
       // Handle the error gracefully, such as showing a message to the user
     }
   };
-
   const scanImage = async (uri) => {
+    // Pass the token as a parameter
     setLoading(true);
     try {
       const response = await FileSystem.uploadAsync(
@@ -125,6 +128,10 @@ export default function ScanScreen({ route }) {
           httpMethod: "POST",
           uploadType: FileSystem.FileSystemUploadType.MULTIPART,
           fieldName: "image",
+          headers: {
+            // Include the Authorization header with the bearer token
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -153,7 +160,7 @@ export default function ScanScreen({ route }) {
   return (
     <View style={styles.container}>
       <View style={styles.sideHeader}>
-        <TouchableOpacity onPress={goToHomeScreen} style={styles.logoContainer}>
+        <TouchableOpacity onPress={goBack} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}
@@ -173,6 +180,8 @@ export default function ScanScreen({ route }) {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0B8F87" />
+
+          <Text style={styles.loadingText}>Scanning...</Text>
         </View>
       )}
 
@@ -263,13 +272,16 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     position: "absolute",
-    top: "50%",
-    left: "50%",
-    marginTop: -30, // Half of the ActivityIndicator size
-    marginLeft: -30, // Half of the ActivityIndicator size
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1,
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 10,
     padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
   },
 });

@@ -1,9 +1,15 @@
 import React from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import { FlatList, RefreshControl } from "react-native-gesture-handler";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import ScanItem from "./scanItem";
 
-const ScanList = ({ data }) => {
+const ScanList = ({ data, onRefresh }) => {
   const renderItem = ({ item }) => {
     const {
       id,
@@ -37,13 +43,10 @@ const ScanList = ({ data }) => {
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.id.toString()} // Convert id to string for key extraction
+      keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
       refreshControl={
-        <RefreshControl
-          refreshing={false} // You can set this to true to show a loading indicator when refreshing
-          onRefresh={() => console.log("Refreshing...")}
-        />
+        <RefreshControl refreshing={false} onRefresh={onRefresh} />
       }
     />
   );

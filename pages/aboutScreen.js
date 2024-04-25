@@ -6,13 +6,13 @@ import Header from "../components/header";
 export default function AboutScreen() {
   const navigation = useNavigation();
 
-  const goToHomeScreen = () => {
-    navigation.navigate("Home");
+  const goBack = () => {
+    navigation.goBack();
   };
   return (
     <View style={styles.container}>
       <View style={styles.SideHeader}>
-        <TouchableOpacity onPress={goToHomeScreen} style={styles.logoContainer}>
+        <TouchableOpacity onPress={goBack} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}

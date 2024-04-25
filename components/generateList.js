@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
 import GenerateItem from "./generateItem";
 
-const GenerateList = ({ data }) => {
+const GenerateList = ({ data, loading }) => {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
   const renderItem = ({ item }) => {
     return (
       <GenerateItem
@@ -17,41 +27,66 @@ const GenerateList = ({ data }) => {
     );
   };
 
-  if (!data || data.length === 0) {
-    // If data is empty, display a message
-    return (
-      <View style={styles.container1}>
-        <Text style={styles.textContainer1}>No items found</Text>
-      </View>
-    );
-  }
-
   return (
-    <View>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl
-            refreshing={false} // You can set this to true to show a loading indicator when refreshing
-            onRefresh={() => console.log("Refreshing...")}
-          />
-        }
-      />
+    <View style={styles.container}>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      )}
+      {!loading && (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#0B8F87"]}
+              tintColor={"#0B8F87"}
+            />
+          }
+        />
+      )}
+      {!data ||
+        (data.length === 0 && !loading && (
+          <View style={styles.noItemsContainer}>
+            <Text style={styles.noItemsText}>No items found</Text>
+          </View>
+        ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container1: {
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+    alignSelf: "center",
+    marginTop: "50%",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  noItemsContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingRight: 20,
   },
-  textContainer1: {
+  noItemsText: {
     fontSize: 16,
   },
 });

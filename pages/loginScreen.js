@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,43 +7,56 @@ import {
   Image,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from "react-native";
+
+import { AuthContext } from "../components/authentication/AuthContext";
+
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { API_BASE_URL } from "../assets/api";
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { login, userToken } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
 
-  const login = () => {
+  const loginVerify = async () => {
     if (username.length < 1) {
-      Alert.alert("Error", "username cannot be empty");
+      Alert.alert("Error", "Username cannot be empty");
       return;
     }
     if (password.length < 1) {
-      Alert.alert("Error", "password cannot be empty");
+      Alert.alert("Error", "Password cannot be empty");
       return;
     }
-    loginAccount();
-  };
-  const loginAccount = async () => {
+
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/login/`, {
-        username,
-        password,
-      });
-      Alert.alert("Success", "Successfully Logged In");
-      navigation.navigate("Home");
+      // Set loading to true when starting login process
+      setLoading(true);
+
+      // Perform login action
+      await login(username, password);
+
+      setLoading(false);
     } catch (error) {
-      Alert.alert(
-        "Error",
-        "Failed to login. Please check your credentials and try again."
-      );
+      // Handle login errors if necessary
       console.error("Login error:", error);
+      Alert.alert("Error", "Failed to login. Please try again.");
+      setLoading(false); // Reset loading state in case of error
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      setUsername("");
+      setPassword("");
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   const goToSignupScreen = () => {
     navigation.navigate("Signup");
   };
@@ -68,6 +81,11 @@ export default function LoginScreen() {
           multiline={true}
         />
       </View>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+        </View>
+      )}
 
       <View style={styles.inputContainer}>
         <Image
@@ -79,12 +97,12 @@ export default function LoginScreen() {
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          multiline={true}
+          secureTextEntry={true}
         />
       </View>
       <Text style={styles.forgetButton}> Forget Password? </Text>
 
-      <TouchableOpacity style={styles.button} onPress={login}>
+      <TouchableOpacity style={styles.button} onPress={loginVerify}>
         <Text style={styles.buttonText}>LOG IN</Text>
       </TouchableOpacity>
       <View style={styles.noAccountContainer}>
@@ -128,7 +146,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#0B8F87",
     borderRadius: 10,
-    paddingLeft: 40, // Adjusted paddingLeft to accommodate the image width
+    paddingLeft: 40,
     backgroundColor: "#EDEDED",
   },
 
@@ -136,7 +154,7 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     position: "absolute",
-    left: 10, // Adjusted left position to align with the TextInput
+    left: 10,
     zIndex: 1,
   },
 
@@ -188,5 +206,16 @@ const styles = StyleSheet.create({
   noAccountContainer: {
     flexDirection: "row",
     marginTop: 15,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -30,
+    marginLeft: -30,
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
   },
 });

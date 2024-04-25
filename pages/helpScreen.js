@@ -7,6 +7,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
+import { API_BASE_URL } from "../assets/api";
 import { useNavigation } from "@react-navigation/native";
 import HelpList from "../components/helpList";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,9 +22,7 @@ export default function HelpScreen() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "https://be9a-143-44-184-178.ngrok-free.app/api/help"
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/help/`);
       setData(response.data);
     } catch (error) {
       setError(error.message);

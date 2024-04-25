@@ -21,8 +21,8 @@ export default function HistoryDetailScan() {
         return "black";
     }
   };
-  const goToHistoryScreen = () => {
-    navigation.navigate("History");
+  const handleBack = () => {
+    navigation.goBack();
   };
   const handleDownload = () => {
     // Download the QR code image
@@ -40,10 +40,7 @@ export default function HistoryDetailScan() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.sideHeader}>
-        <TouchableOpacity
-          onPress={goToHistoryScreen}
-          style={styles.logoContainer}
-        >
+        <TouchableOpacity onPress={handleBack} style={styles.logoContainer}>
           <Image
             source={require("../assets/logo/backIcon.png")}
             style={styles.logo2}

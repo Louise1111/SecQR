@@ -1,17 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, Button, Image } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Button,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { AuthContext } from "../components/authentication/AuthContext";
 import { Camera } from "expo-camera";
 
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { API_BASE_URL } from "../assets/api";
+import { useRoute } from "@react-navigation/native";
 
 export default function CameraScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [scannedData, setScannedData] = useState(null);
-  const [link, setLink] = useState("");
-  const [type, setType] = useState(Camera.Constants.Type.back);
+  const [loading, setLoading] = useState(false);
+  const [showNoUrlMessage, setShowNoUrlMessage] = useState(false);
+  const route = useRoute();
+  const { userToken } = useContext(AuthContext);
+  const { token } = route.params;
 
   useEffect(() => {
     (async () => {
@@ -19,19 +30,19 @@ export default function CameraScreen({ navigation }) {
       setHasPermission(status === "granted");
     })();
   }, []);
+
   const handleBarCodeScanned = async ({ data }) => {
     setScanned(true);
-    setScannedData(data);
     const link = extractURL(data);
     if (link) {
       try {
         const formData = new FormData();
         formData.append("link", link);
-
+        setLoading(true);
         const response = await fetch(`${API_BASE_URL}/api/scan/`, {
           method: "POST",
           headers: {
-            // Do not set Content-Type header for FormData
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         });
@@ -39,17 +50,27 @@ export default function CameraScreen({ navigation }) {
         const responseData = await response.json();
         console.log(responseData);
 
-        // Navigate to the Scan screen and pass the scanned result data as a parameter
-        navigation.navigate("Scan", { scannedResult: responseData });
+        navigation.navigate("Scan", {
+          scannedResult: responseData,
+          token: token,
+        });
+        setLoading(false);
       } catch (error) {
         console.error("Error:", error);
       }
     } else {
-      console.log("No URL detected");
+      setShowNoUrlMessage(true);
+
+      setTimeout(() => {
+        setShowNoUrlMessage(false);
+
+        navigation.goBack();
+      }, 3000);
     }
   };
+
   const goToScanScreen = () => {
-    navigation.navigate("Scan");
+    navigation.goBack();
   };
 
   const extractURL = (data) => {
@@ -97,9 +118,21 @@ export default function CameraScreen({ navigation }) {
       </View>
       <Camera
         style={styles.camera}
-        type={type}
+        type={Camera.Constants.Type.back}
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-      ></Camera>
+      >
+        {showNoUrlMessage && (
+          <View style={styles.messageContainer}>
+            <Text style={styles.messageText}>No URL Detected</Text>
+          </View>
+        )}
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0B8F87" />
+            <Text style={styles.loadingText}>Scanning...</Text>
+          </View>
+        )}
+      </Camera>
     </View>
   );
 }
@@ -140,5 +173,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#0B8F87",
     zIndex: 1,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -50 }, { translateY: -50 }],
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  messageContainer: {
+    position: "absolute",
+    top: 20,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    padding: 10,
+  },
+  messageText: {
+    fontSize: 16,
+    color: "#333",
   },
 });
