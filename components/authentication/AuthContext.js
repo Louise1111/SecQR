@@ -38,7 +38,6 @@ const AuthProvider = ({ children }) => {
       AsyncStorage.setItem("userInfo", JSON.stringify(userData));
       AsyncStorage.setItem("userToken", token);
       Alert.alert("Success", "Successfully Logged In");
-      console.log("Token:", token);
     } catch (error) {
       console.log("Login error:", error);
       Alert.alert(
@@ -92,7 +91,9 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoading, userToken }}>
+    <AuthContext.Provider
+      value={{ login, logout, isLoading, userToken, userInfo }}
+    >
       {children}
     </AuthContext.Provider>
   );

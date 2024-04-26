@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   resultBody: {
     marginLeft: 40,
-    width: 230,
+    width: 215,
   },
   Button: {
     flexDirection: "row",

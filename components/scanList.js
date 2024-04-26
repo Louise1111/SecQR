@@ -18,6 +18,7 @@ const ScanList = ({ data, onRefresh }) => {
       malware_detected,
       malware_detected_tool,
       verify_qr_legitimacy,
+      scanned_at,
     } = item;
     const cleanedLink = link.includes("###") ? link.split("###")[0] : link;
     return (
@@ -28,11 +29,16 @@ const ScanList = ({ data, onRefresh }) => {
         malware_detected={malware_detected}
         malware_detected_tool={malware_detected_tool}
         verify_qr_legitimacy={verify_qr_legitimacy}
+        scanned_at={scanned_at}
       />
     );
   };
 
-  if (!data || data.length === 0) {
+  const sortedData = data.sort(
+    (a, b) => new Date(b.scanned_at) - new Date(a.scanned_at)
+  );
+
+  if (!sortedData || sortedData.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>No items found</Text>
@@ -42,7 +48,7 @@ const ScanList = ({ data, onRefresh }) => {
 
   return (
     <FlatList
-      data={data}
+      data={sortedData}
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
       refreshControl={

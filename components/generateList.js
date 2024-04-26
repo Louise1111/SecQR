@@ -23,9 +23,15 @@ const GenerateList = ({ data, loading }) => {
         status={item.url_status}
         generationStatus={item.generation_status}
         qr_code={item.qr_code}
+        created_at={item.created_at}
       />
     );
   };
+
+  // Sort the data by created_at in descending order before rendering
+  const sortedData = data.sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  );
 
   return (
     <View style={styles.container}>
@@ -37,8 +43,8 @@ const GenerateList = ({ data, loading }) => {
       )}
       {!loading && (
         <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
+          data={sortedData}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           refreshControl={
             <RefreshControl

@@ -43,7 +43,7 @@ const Notification = ({ visible, onClose, scannedResult }) => {
         return "black";
     }
   };
-  // Check if scannedResult is null or undefined
+
   if (!scannedResult) {
     return (
       <Modal visible={visible} animationType="slide" transparent>
@@ -72,6 +72,7 @@ const Notification = ({ visible, onClose, scannedResult }) => {
               source={require("../assets/logo/logo.png")}
               style={styles.SecQR_logo}
             />
+
             <View style={styles.logoTextContainer}>
               <Text style={styles.ratingText}>
                 <Text>Sec</Text>
@@ -95,6 +96,19 @@ const Notification = ({ visible, onClose, scannedResult }) => {
               </Text>
             </View>
           </View>
+          <TouchableOpacity
+            style={styles.reportImage}
+            onPress={() =>
+              Linking.openURL(
+                "https://safebrowsing.google.com/safebrowsing/report_phish/?hl=en"
+              )
+            }
+          >
+            <Image
+              source={require("../assets/logo/report.png")}
+              style={styles.reportImage}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.moreButton}
             onPress={expanded ? handleSeeLess : handleSeeMore}
@@ -285,6 +299,13 @@ const styles = StyleSheet.create({
 
     width: 125,
     marginTop: 5,
+  },
+  reportImage: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
   },
 });
 export default Notification;

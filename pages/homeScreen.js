@@ -7,16 +7,25 @@ import {
   Animated,
   Image,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import Header from "../components/header";
 import { useNavigation } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthContext } from "../components/authentication/AuthContext";
+import { API_BASE_URL } from "../assets/api";
+import axios from "axios";
+
 export default function HomeScreen() {
   const [isOpen, setIsOpen] = useState(false);
   const [translateX] = useState(new Animated.Value(-300)); // Start position off-screen
-  const { logout } = useContext(AuthContext);
-  const { userToken } = useContext(AuthContext);
+  const { logout, userToken } = useContext(AuthContext);
+  const [userData, setUserData] = useState(null);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
@@ -24,9 +33,23 @@ export default function HomeScreen() {
         closeDrawer();
       }
     });
-
     return unsubscribe;
   }, [navigation, isOpen]);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/user/`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      Alert.alert("Error", "Failed to fetch user data. Please try again.");
+    }
+  };
+
   const toggleDrawer = () => {
     if (isOpen) {
       closeDrawer();
@@ -36,8 +59,9 @@ export default function HomeScreen() {
   };
 
   const openDrawer = () => {
+    fetchData();
     Animated.timing(translateX, {
-      toValue: 0, // Move into view
+      toValue: 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
@@ -58,7 +82,6 @@ export default function HomeScreen() {
       closeDrawer();
     }
   };
-  const navigation = useNavigation();
 
   const goToScanScreen = () => {
     navigation.navigate("Scan", { token: userToken });
@@ -101,11 +124,29 @@ export default function HomeScreen() {
         pointerEvents={isOpen ? "auto" : "none"}
       >
         <TouchableOpacity style={styles.drawerItem} onPress={goToProfile}>
-          <Image
-            source={require("../assets/logo/user.png")}
-            style={styles.logoDrawer}
-          />
-          <Text style={styles.drawerItemText}>PROFILE</Text>
+          {userData?.user.image ? (
+            <View style={styles.circleProfile}>
+              <Image
+                source={{ uri: `${API_BASE_URL}${userData.user.image}` }}
+                style={styles.logoDrawer}
+              />
+            </View>
+          ) : (
+            <View style={styles.circleProfile}>
+              <Image
+                source={require("../assets/logo/user.png")}
+                style={styles.logoDrawer}
+              />
+            </View>
+          )}
+          <Text
+            style={[
+              styles.drawerItemText,
+              { textTransform: "uppercase", textDecorationLine: "underline" },
+            ]}
+          >
+            {userData?.user.username || "PROFILE"}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.drawerItem2}
@@ -196,7 +237,7 @@ const styles = StyleSheet.create({
     width: 210,
     backgroundColor: "#0B8F87",
     padding: 0,
-    zIndex: 2, // Increase the zIndex of the drawer
+    zIndex: 2,
     borderTopEndRadius: 5,
     borderBottomEndRadius: 5,
     borderWidth: 2,
@@ -257,7 +298,7 @@ const styles = StyleSheet.create({
     justifyContent: "left",
     alignItems: "center",
     backgroundColor: "#0B8F87",
-    zIndex: 1, // Ensure buttons are clickable over the drawer
+    zIndex: 1,
   },
   logo: {
     width: 37,
@@ -269,5 +310,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 26,
     fontWeight: "bold",
+  },
+  circleProfile: {
+    width: 36,
+    height: 36,
+    borderRadius: 36 / 2,
+    overflow: "hidden",
+    marginRight: 3,
+    marginLeft: 5,
+    marginBottom: 3,
   },
 });

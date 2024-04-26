@@ -14,7 +14,8 @@ import GenerateResultScreen from "../pages/generateResultScreen";
 import HistoryDetailScan from "../pages/historyDetailScan";
 import Notification from "../components/notification";
 import ProfileScreen from "../pages/profileScreen";
-
+import OtpVerifyScreen from "../pages/otpVerifyScreen";
+import NewPasswordScreen from "../pages/newPasswordScreen";
 const Stack = createStackNavigator();
 
 const AuthStack = () => {
@@ -33,6 +34,8 @@ const AuthStack = () => {
       <Stack.Screen name="HistoryDetailScan" component={HistoryDetailScan} />
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
+      <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
     </Stack.Navigator>
   );
 };

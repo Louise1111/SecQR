@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { AuthContext } from "../components/authentication/AuthContext";
 
@@ -69,7 +70,6 @@ export default function ScanScreen({ route }) {
       }
     } catch (error) {
       console.error("Error ensuring directory exists:", error);
-      // Handle the error gracefully, such as showing a message to the user
     }
   };
   const openImagePicker = async () => {
@@ -86,10 +86,8 @@ export default function ScanScreen({ route }) {
         console.log(uri);
         saveImage(uri);
       } else if (result && result.cancelled) {
-        // Handle the case where image selection is cancelled
         return;
       } else {
-        // Handle the case where the result is null (e.g., user backs out)
         return;
       }
     } catch (error) {
@@ -97,6 +95,7 @@ export default function ScanScreen({ route }) {
       return;
     }
   };
+
   const saveImage = async (uri) => {
     try {
       await ensureDirExists(); // Ensure the directory exists
@@ -140,20 +139,18 @@ export default function ScanScreen({ route }) {
       console.log("Response:", response);
 
       if (response.status === 201) {
-        // Extracting the response data from the response body
         const responseData = JSON.parse(response.body);
         console.log("Response data:", responseData);
 
-        // Navigate to the Scan screen and pass the scanned result data as a parameter
         navigation.navigate("Scan", { scannedResult: responseData });
 
-        console.log("Image scanned successfully!"); // Log success message
+        console.log("Image scanned successfully!");
       } else {
-        console.error("Error:", response.status);
+        Alert.alert("Error", "No QR code or No link found");
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
-      setLoading(false); // Ensure loading state is reset even if an error occurs
+      Alert.alert("Error", "Cannot upload.Please check internet or try again.");
+      setLoading(false);
     }
   };
 

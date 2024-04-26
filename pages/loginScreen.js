@@ -34,18 +34,15 @@ export default function LoginScreen() {
     }
 
     try {
-      // Set loading to true when starting login process
       setLoading(true);
 
-      // Perform login action
       await login(username, password);
 
       setLoading(false);
     } catch (error) {
-      // Handle login errors if necessary
       console.error("Login error:", error);
       Alert.alert("Error", "Failed to login. Please try again.");
-      setLoading(false); // Reset loading state in case of error
+      setLoading(false);
     }
   };
 
@@ -59,6 +56,10 @@ export default function LoginScreen() {
   }, [navigation]);
   const goToSignupScreen = () => {
     navigation.navigate("Signup");
+  };
+
+  goToForgot = () => {
+    navigation.navigate("Forgot");
   };
   return (
     <View style={styles.container}>
@@ -100,7 +101,9 @@ export default function LoginScreen() {
           secureTextEntry={true}
         />
       </View>
-      <Text style={styles.forgetButton}> Forget Password? </Text>
+      <TouchableOpacity onPress={goToForgot}>
+        <Text style={styles.forgetButton}> Forget Password? </Text>
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={loginVerify}>
         <Text style={styles.buttonText}>LOG IN</Text>
