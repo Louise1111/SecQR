@@ -49,7 +49,7 @@ const Notification = ({ visible, onClose, scannedResult }) => {
       <Modal visible={visible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View
-            style={[styles.modalContent, { height: expanded ? "auto" : 200 }]}
+            style={[styles.modalContent, { height: expanded ? "auto" : 250 }]}
           >
             <Text>No data available</Text>
             <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
@@ -65,7 +65,7 @@ const Notification = ({ visible, onClose, scannedResult }) => {
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalContainer}>
         <View
-          style={[styles.modalContent, { height: expanded ? "auto" : 200 }]}
+          style={[styles.modalContent, { height: expanded ? "auto" : 240 }]}
         >
           <View style={styles.header}>
             <Image
@@ -132,7 +132,6 @@ const Notification = ({ visible, onClose, scannedResult }) => {
               </TouchableOpacity>
             </View>
           )}
-
           {scannedResult.link_status !== "SAFE" && (
             <TouchableOpacity
               style={styles.moreButton}
@@ -157,13 +156,20 @@ const Notification = ({ visible, onClose, scannedResult }) => {
             <View style={styles.additionalContent}>
               <View style={styles.addContentRow}>
                 <Text
-                  style={{ color: "#FF0000", fontSize: 16, fontWeight: "bold" }}
+                  style={{
+                    color: "#FF0000",
+                    fontSize: 16,
+                    fontWeight: "bold",
+                  }}
                 >
                   Threat Detected:
                 </Text>
                 <View style={styles.addContentRow2}>
                   <Text
-                    style={{ textTransform: "capitalize", color: "#FF0000" }}
+                    style={{
+                      textTransform: "capitalize",
+                      color: "#FF0000",
+                    }}
                   >
                     {scannedResult.malware_detected.length > 3
                       ? scannedResult.malware_detected.replace(/[\[\]']+/g, "")
@@ -173,7 +179,11 @@ const Notification = ({ visible, onClose, scannedResult }) => {
               </View>
               <View style={styles.addContentRow}>
                 <Text
-                  style={{ color: "#009F2C", fontSize: 16, fontWeight: "bold" }}
+                  style={{
+                    color: "#009F2C",
+                    fontSize: 16,
+                    fontWeight: "bold",
+                  }}
                 >
                   Detected By:
                 </Text>
@@ -236,8 +246,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#0B8F87",
-    position: "relative",
-    paddingBottom: 15,
+    paddingBottom: 13, // Adjust as needed to create space for buttons
+    justifyContent: "flex-end", // Align buttons to the bottom
   },
   header: {
     flexDirection: "row",
@@ -251,6 +261,9 @@ const styles = StyleSheet.create({
     maxWidth: "60%",
     marginTop: -70,
     marginLeft: 10,
+    position: "relative",
+    top: 13,
+    marginBottom: 20,
   },
   ratingText: {
     fontSize: 20,
@@ -261,7 +274,7 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   ResultText: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: "bold",
     marginLeft: -130,
     marginTop: -5,
@@ -293,17 +306,19 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     flexDirection: "row",
-    marginBottom: -17.5,
-    marginTop: 25,
+    bottom: -19,
+    paddingBottom: 5,
+    position: "relative",
   },
   imageMore: {
     marginTop: 4,
   },
   Button: {
-    backgroundColor: "#0C7D76",
+    backgroundColor: "#0B8F87",
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: "center",
+    bottom: 0,
     width: "50%",
     borderWidth: 1,
   },
@@ -376,4 +391,5 @@ const styles = StyleSheet.create({
     height: 15,
   },
 });
+
 export default Notification;
