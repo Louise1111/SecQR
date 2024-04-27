@@ -9,6 +9,7 @@ const GenerateItem = ({
   status,
   generationStatus,
   qr_code,
+  created_at,
 }) => {
   const navigation = useNavigation();
 
@@ -25,6 +26,16 @@ const GenerateItem = ({
     imageSource = require("../assets/logo/none.png");
   }
 
+  const generateDate = new Date(created_at);
+  const formattedDate = generateDate.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+  const formattedTime = generateDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
   return (
     <TouchableOpacity
       style={styles.container1}
@@ -36,6 +47,7 @@ const GenerateItem = ({
           status,
           generationStatus,
           qr_code,
+          created_at,
         })
       }
     >
@@ -44,6 +56,9 @@ const GenerateItem = ({
 
       <View style={styles.urlContent}>
         <Text style={styles.textContainer1}> {url}</Text>
+        <Text style={styles.textContainer2}>
+          {formattedDate}, {formattedTime}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -62,13 +77,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 25,
   },
+  textContainer2: {
+    fontSize: 12,
+    position: "absolute",
+    right: 0,
+    top: 20,
+    color: "#777777",
+  },
   logo: {
     width: 28,
     height: 25,
     marginLeft: 0,
   },
   urlContent: {
-    marginRight: 20,
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });
 

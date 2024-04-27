@@ -29,8 +29,30 @@ export default function HistoryDetailScreen() {
     Linking.openURL(qr_code);
   };
   const route = useRoute();
-  const { historyId, description, url, status, qr_code, generationStatus } =
-    route.params;
+  const {
+    historyId,
+    description,
+    url,
+    status,
+    qr_code,
+    generationStatus,
+    created_at,
+  } = route.params;
+
+  const formattedDate = new Date(created_at);
+  const formattedDateString = formattedDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+  const formattedTime = formattedDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const formattedDay = formattedDate.toLocaleDateString("en-US", {
+    weekday: "short",
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,7 +80,12 @@ export default function HistoryDetailScreen() {
             {url}
           </Text>
         </View>
-
+        <Text style={styles.textStyle}>Date Scanned:</Text>
+        <View style={styles.resultBody}>
+          <Text style={styles.textResult}>
+            {formattedDay}, {formattedDateString}, {formattedTime}
+          </Text>
+        </View>
         <Text style={styles.textStyle}>Status:</Text>
         <View style={styles.resultBody}>
           <Text

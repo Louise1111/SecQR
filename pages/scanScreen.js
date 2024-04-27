@@ -23,12 +23,14 @@ export default function ScanScreen({ route }) {
   const [image, setImage] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [scannedResult, setScannedResult] = useState(null);
+  const [token, setToken] = useState(null);
+
   const { userToken } = useContext(AuthContext);
 
-  const { token } = route.params;
   useEffect(() => {
     loadImages();
-  }, []);
+    setToken(route.params?.token || userToken);
+  }, [route.params, userToken]);
 
   const loadImages = async () => {
     await ensureDirExists();
@@ -52,6 +54,7 @@ export default function ScanScreen({ route }) {
   const goBack = () => {
     navigation.pop();
   };
+
   const goToCameraScreen = () => {
     navigation.navigate("CameraScreen", { token: userToken });
   };
@@ -142,7 +145,9 @@ export default function ScanScreen({ route }) {
         const responseData = JSON.parse(response.body);
         console.log("Response data:", responseData);
 
-        navigation.navigate("Scan", { scannedResult: responseData });
+        navigation.navigate("Scan", {
+          scannedResult: responseData,
+        });
 
         console.log("Image scanned successfully!");
       } else {
