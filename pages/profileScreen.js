@@ -83,7 +83,7 @@ export default function ProfileScreen() {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
+        allowsEditing: true,
         aspect: [4, 4],
         quality: 0.8,
       });

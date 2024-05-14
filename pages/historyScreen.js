@@ -1,21 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from "@react-navigation/native";
 import GenerateList from "../components/generateList";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { API_BASE_URL } from "../assets/api";
 import ScanList from "../components/scanList";
+
 export default function HistoryScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { token } = route.params;
+
   const [data, setData] = useState([]);
   const [scanData, setScanData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showGenerateList, setShowGenerateList] = useState(false);
   const [showScanList, setShowScanList] = useState(true);
-  const route = useRoute();
-  const { token } = route.params;
+
   const toggleGenerateList = () => {
     setShowGenerateList(!showGenerateList);
     setShowScanList(false);
@@ -25,6 +39,7 @@ export default function HistoryScreen() {
     setShowScanList(!showScanList);
     setShowGenerateList(false);
   };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -40,10 +55,6 @@ export default function HistoryScreen() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchScanData = async () => {
     try {
@@ -61,9 +72,12 @@ export default function HistoryScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchScanData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+      fetchScanData();
+    }, [])
+  );
 
   const goBack = () => {
     navigation.goBack();
@@ -84,24 +98,29 @@ export default function HistoryScreen() {
         <TouchableOpacity
           style={[styles.button, showScanList && styles.activeButton]}
           onPress={toggleScanList}
-          disabled={showScanList} // Disable button if showScanList is true
+          disabled={showScanList}
         >
           <Text style={styles.buttonText}>SCANNED</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, showGenerateList && styles.activeButton]}
           onPress={toggleGenerateList}
-          disabled={showGenerateList} // Disable button if showGenerateList is true
+          disabled={showGenerateList}
         >
           <Text style={styles.buttonText}>GENERATED</Text>
         </TouchableOpacity>
       </View>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      )}
       {showGenerateList && (
         <View style={styles.historyStyle}>
           <GenerateList data={data} />
         </View>
       )}
-
       {showScanList && (
         <View style={styles.historyStyle}>
           <ScanList data={scanData} />
@@ -159,5 +178,19 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 17,
     fontWeight: "bold",
+  },
+  loadingContainer: {
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
   },
 });

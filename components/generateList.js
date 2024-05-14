@@ -28,7 +28,6 @@ const GenerateList = ({ data, loading }) => {
     );
   };
 
-  // Sort the data by created_at in descending order before rendering
   const sortedData = data.sort(
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );

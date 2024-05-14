@@ -8,6 +8,7 @@ import {
   Image,
   TouchableWithoutFeedback,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import Header from "../components/header";
 import { useNavigation } from "@react-navigation/native";
@@ -22,11 +23,25 @@ export default function HomeScreen() {
   const { logout, userToken } = useContext(AuthContext);
   const [userData, setUserData] = useState(null);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const handleLogout = async () => {
+    setLoading(true); // Set loading state to true
+
+    try {
+      await logout();
+
+      setUserData(null);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error logging out:", error);
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
       if (isOpen) {
@@ -150,9 +165,8 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.drawerItem2}
-          onPress={() => {
-            logout();
-          }}
+          onPress={handleLogout}
+          disabled={loading}
         >
           <Image
             source={require("../assets/logo/signout.png")}
@@ -183,6 +197,13 @@ export default function HomeScreen() {
         />
         <Text style={styles.buttonText}>Generate QR</Text>
       </TouchableOpacity>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+
+          <Text style={styles.loadingText}>Logging out</Text>
+        </View>
+      )}
       <TouchableOpacity style={styles.button} onPress={goToHistoryScreen}>
         <Image
           source={require("../assets/logo/history.png")}
@@ -275,18 +296,16 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   logoDrawer: {
-    width: 42,
-    height: 42,
-    marginRight: -3,
+    width: 43,
+    height: 40,
+
     marginTop: -4,
-    marginLeft: 5,
-    padding: 0,
   },
   logoDrawer2: {
-    width: 27,
-    height: 27,
+    width: 25,
+    height: 25,
     marginRight: 2,
-    marginTop: 2,
+    marginTop: 4,
     marginLeft: 12,
   },
   button: {
@@ -319,5 +338,19 @@ const styles = StyleSheet.create({
     marginRight: 3,
     marginLeft: 5,
     marginBottom: 3,
+  },
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
   },
 });

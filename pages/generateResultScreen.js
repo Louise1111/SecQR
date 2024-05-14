@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,8 @@ export default function GenerateResultScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { generatedData } = route.params;
+  const [imageUri, setImageUri] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleBack = () => {
     navigation.goBack();
@@ -20,9 +22,18 @@ export default function GenerateResultScreen() {
 
   const handleDownload = () => {
     // Download the QR code image
-    Linking.openURL(generatedData.qr_code);
+    Linking.openURL(imageUri);
   };
 
+  useEffect(() => {
+    if (generatedData.qr_code) {
+      let qrCodeUrl = generatedData.qr_code;
+      if (qrCodeUrl.includes("http://")) {
+        qrCodeUrl = qrCodeUrl.replace("http://", "https://");
+      }
+      setImageUri(qrCodeUrl);
+    }
+  }, [generatedData.qr_code]);
   return (
     <View style={styles.container}>
       <View style={styles.SideHeader}>
@@ -34,45 +45,61 @@ export default function GenerateResultScreen() {
         </TouchableOpacity>
         <Text style={styles.HeaderText}>Generate QR</Text>
       </View>
-      <View>
-        <Text style={{ fontSize: 25 }}>
-          GENERATION
-          <Text
-            style={{
-              color:
-                generatedData.generation_status === "SUCCESS" ? "green" : "red",
-            }}
-          >
-            {generatedData.generation_status}
-          </Text>
+      <View style={styles.generationStatus}>
+        <Image
+          source={
+            generatedData.generation_status === "SUCCESS"
+              ? require("../assets/logo/success.png")
+              : require("../assets/logo/failed.png")
+          }
+          style={styles.generationLogo}
+        />
+        <Text
+          style={{
+            color:
+              generatedData.generation_status === "SUCCESS"
+                ? "#009F2C"
+                : "#FF0000",
+            fontSize: 35,
+            fontWeight: "bold",
+            marginTop: -50,
+          }}
+        >
+          {generatedData.generation_status}!
         </Text>
       </View>
 
       {generatedData.generation_status === "SUCCESS" ? (
         <View style={styles.imageResult}>
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0B8F87" />
+
+              <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+          )}
           <Image
             style={{ width: 400, height: 400 }}
-            source={{ uri: generatedData.qr_code }}
+            source={{ uri: imageUri }}
           />
         </View>
       ) : (
         <View style={styles.failedContainer}>
           <Text style={styles.failedText}>
-            Cannot generate QR Code due to "{generatedData.url_status}" Content
+            Cannot generate QR Code due to "
+            <Text style={{ color: "red" }}>{generatedData.url_status}</Text>"
+            URL
           </Text>
         </View>
       )}
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.Button} onPress={handleBack}>
-          <Text style={styles.closeButtonText}>Close</Text>
+          <Text style={styles.closeButtonText}>CLOSE</Text>
         </TouchableOpacity>
         {generatedData.generation_status === "SUCCESS" && (
-          <TouchableOpacity
-            style={[styles.Button, { backgroundColor: "#0C7D76" }]}
-            onPress={handleDownload}
-          >
-            <Text style={styles.closeButtonText}>Download</Text>
+          <TouchableOpacity style={[styles.Button]} onPress={handleDownload}>
+            <Text style={styles.closeButtonText}>DOWNLOAD</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -115,11 +142,12 @@ const styles = StyleSheet.create({
     marginLeft: 60,
   },
   Button: {
-    backgroundColor: "#E4A937",
+    backgroundColor: "#0C7D76",
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: "center",
     width: "50%",
+    borderWidth: 1,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -133,13 +161,40 @@ const styles = StyleSheet.create({
 
   failedContainer: {
     width: 350,
-    height: 400,
+    height: 276,
     justifyContent: "center",
     alignItems: "center",
   },
   failedText: {
-    fontSize: 20,
-    color: "red",
+    fontSize: 27,
+
     textAlign: "center",
+  },
+  closeButtonText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#ffffff",
+  },
+  generationStatus: {
+    position: "relative",
+    alignItems: "center",
+    fontSize: 35,
+    fontWeight: "bold",
+    alignContent: "center",
+  },
+
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
   },
 });

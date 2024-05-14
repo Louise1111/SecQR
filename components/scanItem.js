@@ -9,6 +9,7 @@ const ScanItem = ({
   malware_detected,
   malware_detected_tool,
   verify_qr_legitimacy,
+  report,
   scanned_at,
 }) => {
   const navigation = useNavigation();
@@ -43,12 +44,13 @@ const ScanItem = ({
       style={styles.container1}
       onPress={() =>
         navigation.navigate("HistoryDetailScan", {
-          historyId: id,
+          id: id,
           url,
           status,
           malware_detected,
           malware_detected_tool,
           verify_qr_legitimacy,
+          report,
           scanned_at,
         })
       }

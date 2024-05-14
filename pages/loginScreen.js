@@ -15,9 +15,11 @@ import { AuthContext } from "../components/authentication/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { API_BASE_URL } from "../assets/api";
+
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to control whether the password is visible
   const { login, userToken } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
@@ -54,13 +56,19 @@ export default function LoginScreen() {
 
     return unsubscribe;
   }, [navigation]);
+
   const goToSignupScreen = () => {
     navigation.navigate("Signup");
   };
 
-  goToForgot = () => {
+  const goToForgot = () => {
     navigation.navigate("Forgot");
   };
+
+  const toggleShowPassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -98,9 +106,23 @@ export default function LoginScreen() {
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry={true}
+          secureTextEntry={!showPassword}
         />
+        <TouchableOpacity
+          onPress={toggleShowPassword}
+          style={styles.passwordToggle}
+        >
+          <Image
+            source={
+              showPassword
+                ? require("../assets/logo/eyesOpen.png")
+                : require("../assets/logo/eyesClose.png")
+            }
+            style={styles.passwordToggleIcon}
+          />
+        </TouchableOpacity>
       </View>
+
       <TouchableOpacity onPress={goToForgot}>
         <Text style={styles.forgetButton}> Forget Password? </Text>
       </TouchableOpacity>
@@ -150,6 +172,7 @@ const styles = StyleSheet.create({
     borderColor: "#0B8F87",
     borderRadius: 10,
     paddingLeft: 40,
+    paddingRight: 50,
     backgroundColor: "#EDEDED",
   },
 
@@ -159,6 +182,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 10,
     zIndex: 1,
+  },
+
+  passwordToggle: {
+    position: "absolute",
+    right: 5,
+    zIndex: 1,
+  },
+
+  passwordToggleIcon: {
+    width: 40,
+    height: 40,
   },
 
   button: {

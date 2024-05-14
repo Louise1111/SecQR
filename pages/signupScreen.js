@@ -7,6 +7,7 @@ import {
   Image,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
@@ -20,6 +21,10 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const navigation = useNavigation();
 
   const signup = () => {
@@ -51,8 +56,17 @@ export default function SignupScreen() {
     }
     signupButton();
   };
+  const toggleShowPassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
 
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(
+      (prevShowConfirmPassword) => !prevShowConfirmPassword
+    );
+  };
   const signupButton = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/register/`, {
         username,
@@ -65,6 +79,7 @@ export default function SignupScreen() {
       const { id, ...responseData } = response.data;
 
       if (response.status === 201) {
+        setLoading(false);
         Alert.alert("Success", "Account created successfully");
         navigation.navigate("Login");
       } else {
@@ -72,6 +87,7 @@ export default function SignupScreen() {
           "Error",
           "Unexpected response from server. Please try again later."
         );
+        setLoading(false);
       }
     } catch (error) {
       if (error.response) {
@@ -92,6 +108,7 @@ export default function SignupScreen() {
           "Error",
           "An unexpected error occurred. Please try again later."
         );
+        setLoading(false);
       }
     }
   };
@@ -148,6 +165,13 @@ export default function SignupScreen() {
           onChangeText={setEmail}
         />
       </View>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0B8F87" />
+
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      )}
       <View style={styles.inputContainer}>
         <Image
           source={require("../assets/logo/user.png")}
@@ -170,8 +194,21 @@ export default function SignupScreen() {
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={!showPassword}
         />
+        <TouchableOpacity
+          onPress={toggleShowPassword}
+          style={styles.passwordToggle}
+        >
+          <Image
+            source={
+              showPassword
+                ? require("../assets/logo/eyesOpen.png")
+                : require("../assets/logo/eyesClose.png")
+            }
+            style={styles.passwordToggleIcon}
+          />
+        </TouchableOpacity>
       </View>
       <View style={styles.inputContainer}>
         <Image
@@ -183,8 +220,21 @@ export default function SignupScreen() {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          secureTextEntry
+          secureTextEntry={!showConfirmPassword}
         />
+        <TouchableOpacity
+          onPress={toggleShowConfirmPassword}
+          style={styles.passwordToggle}
+        >
+          <Image
+            source={
+              showConfirmPassword
+                ? require("../assets/logo/eyesOpen.png")
+                : require("../assets/logo/eyesClose.png")
+            }
+            style={styles.passwordToggleIcon}
+          />
+        </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.button} onPress={signup}>
         <Text style={styles.buttonText}>SIGN UP</Text>
@@ -277,5 +327,30 @@ const styles = StyleSheet.create({
   haveAccountContainer: {
     flexDirection: "row",
     marginTop: 5,
+  },
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 10,
+    padding: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+
+  passwordToggle: {
+    position: "absolute",
+    right: 5,
+    zIndex: 1,
+  },
+
+  passwordToggleIcon: {
+    width: 40,
+    height: 40,
   },
 });

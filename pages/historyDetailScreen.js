@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Linking } from "react-native";
@@ -6,6 +6,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HistoryDetailScreen() {
   const navigation = useNavigation();
+  const [ImageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    const fetchImageData = async () => {
+      if (qr_code) {
+        let qrCodeUrl = qr_code;
+        if (qrCodeUrl.includes("http://")) {
+          qrCodeUrl = qrCodeUrl.replace("http://", "https://");
+        }
+        setImageUrl(qrCodeUrl);
+        console.log("Image URL:", qrCodeUrl);
+      }
+    };
+
+    fetchImageData();
+  }, [qr_code]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -16,28 +32,24 @@ export default function HistoryDetailScreen() {
       case "SUCCESS":
         return "#009F2C";
       case "NOT THAT SAFE":
-        return "#EB07FF";
+        return "#FF0000";
       default:
         return "black";
     }
   };
+
   const handleBack = () => {
     navigation.goBack();
   };
+
   const handleDownload = () => {
     // Download the QR code image
-    Linking.openURL(qr_code);
+    Linking.openURL(ImageUrl);
   };
+
   const route = useRoute();
-  const {
-    historyId,
-    description,
-    url,
-    status,
-    qr_code,
-    generationStatus,
-    created_at,
-  } = route.params;
+  const { description, url, status, qr_code, generationStatus, created_at } =
+    route.params;
 
   const formattedDate = new Date(created_at);
   const formattedDateString = formattedDate.toLocaleDateString("en-US", {
@@ -80,7 +92,7 @@ export default function HistoryDetailScreen() {
             {url}
           </Text>
         </View>
-        <Text style={styles.textStyle}>Date Scanned:</Text>
+        <Text style={styles.textStyle}>Date Generate:</Text>
         <View style={styles.resultBody}>
           <Text style={styles.textResult}>
             {formattedDay}, {formattedDateString}, {formattedTime}
@@ -119,11 +131,11 @@ export default function HistoryDetailScreen() {
         </View>
         <View style={styles.imageResult}>
           <Image
-            style={{ width: 250, height: 250 }}
-            source={{ uri: qr_code }}
+            style={{ width: 250, height: 250, resizeMode: "contain" }}
+            source={{ uri: ImageUrl }}
           />
         </View>
-        {generationStatus === "SUCCESS" && (
+        {ImageUrl !== null && (
           <TouchableOpacity
             style={[styles.Button, { backgroundColor: "#0C7D76" }]}
             onPress={handleDownload}

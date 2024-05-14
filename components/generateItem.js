@@ -13,7 +13,6 @@ const GenerateItem = ({
 }) => {
   const navigation = useNavigation();
 
-  // Define the image source based on the status
   let imageSource;
   if (status === "SAFE") {
     imageSource = require("../assets/logo/safe.png");
@@ -22,7 +21,6 @@ const GenerateItem = ({
   } else if (status === "MALICIOUS") {
     imageSource = require("../assets/logo/malicious.png");
   } else {
-    // Default image if status does not match any of the conditions
     imageSource = require("../assets/logo/none.png");
   }
 

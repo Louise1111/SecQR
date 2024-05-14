@@ -43,7 +43,7 @@ export default function GenerateScreen() {
         return;
       }
 
-      setLoading(true); // Set loading to true before starting the fetch request
+      setLoading(true);
 
       const formData = new FormData();
       formData.append("description", description);
@@ -105,6 +105,10 @@ export default function GenerateScreen() {
         />
       </View>
       <View style={styles.inputContainerLink}>
+        <Image
+          source={require("../assets/logo/link.png")}
+          style={styles.inputImage}
+        />
         <TextInput
           style={styles.input2}
           placeholder="https://example.com"
@@ -165,7 +169,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#0B8F87",
     borderRadius: 5,
-    paddingLeft: 10,
+
+    paddingLeft: 40,
     backgroundColor: "#EDEDED",
   },
   button: {
@@ -212,5 +217,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: "#333",
+  },
+
+  inputImage: {
+    width: 37,
+    height: 37,
+    position: "absolute",
+    left: 4,
+    marginTop: 10,
+    zIndex: 1,
   },
 });

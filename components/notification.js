@@ -8,15 +8,42 @@ import {
   Image,
   Linking,
 } from "react-native";
-
+import ConfirmOpenLinkModal from "./confirmOpenLink";
+import ConfirmReportModal from "./confirmReport";
 const Notification = ({ visible, onClose, scannedResult }) => {
   const [expanded, setExpanded] = useState(false);
   const [seeLessVisible, setSeeLessVisible] = useState(false);
+  const [confirmOpenLink, setConfirmOpenLink] = useState(false);
+  const [confirmReport, setConfirmReport] = useState(false);
+  const [scannedId, setScannedId] = useState(null);
+  const [link, setLink] = useState(null);
+  const [reportStatus, setReportStatus] = useState(null);
+
+  const onCancel = () => {
+    setConfirmOpenLink(false);
+    setConfirmReport(false);
+  };
+
+  const onConfirm = (status) => {
+    setConfirmOpenLink(false);
+    setConfirmReport(false);
+    setReportStatus(status);
+  };
+
   useEffect(() => {
     if (!visible) {
       setExpanded(false);
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (scannedResult) {
+      setScannedId(scannedResult.id);
+      setLink(scannedResult.link);
+      setReportStatus(scannedResult.report);
+    }
+  }, [scannedResult]);
+
   const handleSeeMore = () => {
     setExpanded(true);
     setSeeLessVisible(true);
@@ -38,7 +65,7 @@ const Notification = ({ visible, onClose, scannedResult }) => {
       case "SAFE":
         return "#009F2C";
       case "NOT THAT SAFE":
-        return "#EB07FF";
+        return "#FF0000";
       default:
         return "black";
     }
@@ -72,7 +99,6 @@ const Notification = ({ visible, onClose, scannedResult }) => {
               source={require("../assets/logo/logo.png")}
               style={styles.SecQR_logo}
             />
-
             <View style={styles.logoTextContainer}>
               <Text style={styles.ratingText}>
                 <Text>Sec</Text>
@@ -114,15 +140,11 @@ const Notification = ({ visible, onClose, scannedResult }) => {
               </Text>
             </View>
           </View>
-          {scannedResult.link_status !== "SAFE" && (
+          {scannedResult.link_status !== "SAFE" && reportStatus !== "Yes" && (
             <View style={styles.reportContainer}>
               <TouchableOpacity
                 style={styles.reportImage}
-                onPress={() =>
-                  Linking.openURL(
-                    "https://safebrowsing.google.com/safebrowsing/report_phish/?hl=en"
-                  )
-                }
+                onPress={() => setConfirmReport(true)}
               >
                 <Image
                   source={require("../assets/logo/report.png")}
@@ -130,6 +152,12 @@ const Notification = ({ visible, onClose, scannedResult }) => {
                 />
                 <Text style={styles.textReport}>Report?</Text>
               </TouchableOpacity>
+              <ConfirmReportModal
+                visible={confirmReport}
+                onCancel={onCancel}
+                onConfirm={(status) => onConfirm(status)}
+                scannedId={scannedId}
+              />
             </View>
           )}
           {scannedResult.link_status !== "SAFE" && (
@@ -214,7 +242,14 @@ const Notification = ({ visible, onClose, scannedResult }) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                Linking.openURL(scannedResult.link);
+                if (
+                  scannedResult.link_status === "MALICIOUS" ||
+                  scannedResult.link_status === "NOT THAT SAFE"
+                ) {
+                  setConfirmOpenLink(true);
+                } else {
+                  Linking.openURL(scannedResult.link);
+                }
               }}
               style={[
                 styles.Button,
@@ -226,6 +261,12 @@ const Notification = ({ visible, onClose, scannedResult }) => {
             >
               <Text style={styles.closeButtonText}>Open Link</Text>
             </TouchableOpacity>
+            <ConfirmOpenLinkModal
+              visible={confirmOpenLink}
+              onCancel={onCancel}
+              onConfirm={onConfirm}
+              link={link}
+            />
           </View>
         </View>
       </View>
@@ -246,8 +287,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#0B8F87",
-    paddingBottom: 13, // Adjust as needed to create space for buttons
-    justifyContent: "flex-end", // Align buttons to the bottom
+    paddingBottom: 13,
+    justifyContent: "flex-end",
   },
   header: {
     flexDirection: "row",
@@ -350,7 +391,6 @@ const styles = StyleSheet.create({
   addContentRow2: {
     margin: 0,
     paddingLeft: 1,
-
     width: 125,
     marginTop: 5,
   },
@@ -364,7 +404,6 @@ const styles = StyleSheet.create({
   reportImage: {
     flexDirection: "row",
     alignItems: "center",
-
     width: 18,
     height: 19,
     marginRight: 3,
@@ -379,7 +418,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     bottom: -25,
-    left: "-40%",
+    left: "-50%",
   },
   poweredByText: {
     fontSize: 13,

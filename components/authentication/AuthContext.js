@@ -1,9 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useEffect, useState } from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert } from "react-native";
 import axios from "axios";
 import { API_BASE_URL } from "../../assets/api";
-import { Alert } from "react-native";
+
 // Create the authentication context
 export const AuthContext = createContext();
 
@@ -24,8 +24,6 @@ const AuthProvider = ({ children }) => {
 
       // Destructure the response data
       const { data } = response;
-
-      console.log("Response data:", data);
 
       // Extract user information and token
       const { token } = data;
@@ -53,14 +51,23 @@ const AuthProvider = ({ children }) => {
     setIsLoading(true);
 
     try {
+      // Send a request to the backend API to invalidate the user's token
+      await axios.post(`${API_BASE_URL}/api/logout/`, null, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
       // Clear user info and token from state and AsyncStorage
       setUserInfo(null);
       setUserToken(null);
 
       await AsyncStorage.removeItem("userInfo");
       await AsyncStorage.removeItem("userToken");
+      Alert.alert("Success", "Successfully Logged Out");
     } catch (error) {
       console.log("Logout error:", error);
+      Alert.alert("Error", "Failed to logout. Please try again.");
     }
 
     setIsLoading(false);

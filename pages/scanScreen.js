@@ -79,7 +79,7 @@ export default function ScanScreen({ route }) {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
+        allowsEditing: true,
         aspect: [4, 4],
         quality: 0.8,
       });
@@ -116,11 +116,9 @@ export default function ScanScreen({ route }) {
       scanImage(destPath);
     } catch (error) {
       console.error("Error saving image:", error);
-      // Handle the error gracefully, such as showing a message to the user
     }
   };
   const scanImage = async (uri) => {
-    // Pass the token as a parameter
     setLoading(true);
     try {
       const response = await FileSystem.uploadAsync(
@@ -131,7 +129,6 @@ export default function ScanScreen({ route }) {
           uploadType: FileSystem.FileSystemUploadType.MULTIPART,
           fieldName: "image",
           headers: {
-            // Include the Authorization header with the bearer token
             Authorization: `Bearer ${token}`,
           },
         }
@@ -262,9 +259,9 @@ const styles = StyleSheet.create({
     height: 40,
   },
   image1: {
-    width: 200, // Adjust the width and height as needed
+    width: 200,
     height: 200,
-    marginBottom: 20, // Add any additional styling you want
+    marginBottom: 20,
   },
   headerText: {
     color: "white",
